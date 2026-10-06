@@ -31,6 +31,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y jq
+      - name: Set Status Info
+        run: |
+          STATUS_FILE="./docs/status.json"
+          LASTMOD=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          TECH="Static"
+          COMMIT=$(git rev-parse --short HEAD)
+          echo '{"success":true,"message":"OK"}' | jq \
+                  --arg lastmod "${LASTMOD}" \
+                  --arg tech "${TECH}" \
+                  --arg commit "${COMMIT}" \
+                  --compact-output \
+                  '.lastmod = $lastmod | .tech = $tech | .commit = $commit' \
+                  > "${STATUS_FILE}"
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
